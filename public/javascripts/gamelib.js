@@ -3,7 +3,6 @@ const height = 500;
 
 var playerId;
 var scoreBoard;
-
 const CARDSPACE = 100;
 var hand = [];
 const HANDX = 300;
@@ -20,7 +19,6 @@ var playButton = new Button("Play Card",140, 370, play);
 var endTurnButton = new Button("End Turn",800,420, end);
 var doneButton = new Button("Combat",140, 420, done);
 var buttons = [ attackButton, playButton, endTurnButton, doneButton];
-
 var startingTurn = false;
 
 async function refresh() {
