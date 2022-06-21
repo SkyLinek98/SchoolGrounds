@@ -1,0 +1,21 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#matches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+#matches section {
+  background-color: crimson;
+  color: white;
+  margin: 5px;
+  padding: 5px;
+}
