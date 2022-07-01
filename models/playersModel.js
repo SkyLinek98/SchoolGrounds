@@ -46,7 +46,6 @@ module.exports.getPlayerMatch = async function (pmId) {
 module.exports.getPlayerDeckCard = async function (pmId, deckId, ownerName) {
     if (!ownerName) ownerName = "player";
     try {
-
         let sqlCheckDeck = `select * from deck 
             where deck_id = $1
             and deck_pm_id = $2`;
@@ -273,6 +272,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
         if (player.pm_state_id != 1)
             return { status: 400, result: { msg: "You cannot play a new card at this moment" } };
         
+        //Check if enough energy
         if(player.pm_energy >= cardCost){
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
@@ -280,34 +280,34 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
 
         //if card is a buff
         if (card.deck_card_id == 4 || card.deck_card_id == 7 || card.deck_card_id == 8){
-        let sqlRandomTableCard = `select * from deck
+            let sqlRandomTableCard = `select * from deck
                 where deck_pm_id = $1 and
                 (deck_pos_id = 2 or deck_pos_id = 3)
                 order by random()
                 limit 1`;
-        res = await pool.query(sqlRandomTableCard, [pmId]);
-        let tableCardId = res.rows[0].deck_id
-        let sql
-        if (card.deck_card_id == 4){
-            sql = `update deck set deck_card_hp = deck_card_hp + 2 where deck_id = $1`;
-        }else  if (card.deck_card_id == 7){
-            sql = `update deck set deck_card_atk = deck_card_atk + 2 where deck_id = $1`;
-        }else{
-            sql = `update deck set deck_card_atk = deck_card_atk + 3, deck_card_hp = deck_card_hp + 3 where deck_id = $1`;
-        }
+            res = await pool.query(sqlRandomTableCard, [pmId]);
+            let tableCardId = res.rows[0].deck_id
+            let sql
+            if (card.deck_card_id == 4){
+                sql = `update deck set deck_card_hp = deck_card_hp + 2 where deck_id = $1`;
+            }else if (card.deck_card_id == 7){
+                sql = `update deck set deck_card_atk = deck_card_atk + 2 where deck_id = $1`;
+            }else if (card.deck_card_id == 8){
+                sql = `update deck set deck_card_atk = deck_card_atk + 3, deck_card_hp = deck_card_hp + 3 where deck_id = $1`;
+            }
         res = await pool.query(sql, [tableCardId]);
-         // Discard 
-         let sqlDiscard = `delete from deck 
+        // Discard card played
+        let sqlDiscard = `delete from deck 
                             where deck_id = $1`;
         await pool.query(sqlDiscard, [card.deck_id]);
     }else{
-
-        // if card exists on players hand, change it to the table
+        // Play card to the table
         let sql = `update deck set deck_pos_id = 3 
                    where deck_id = $1 and deck_pm_id = $2 
                    and deck_pos_id = 1 `;
         res = await pool.query(sql, [deckId, pmId]);
     }
+        //Remove energy used
         if (res.rowCount > 0) {
             let sqlEnergy = `update playermatch set pm_energy = pm_energy - $1
                    where pm_id = $2`;
@@ -320,7 +320,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
             await pool.query(sqlState, [pmId]);
         }
             return { status: 200, result: { msg: "Card played" } };
-        } else { // if not, give an error
+        } else {
             return { status: 400, result: { msg: "That card is not on the players hand" } };
         }
 
@@ -334,9 +334,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
 }
 
 
-// TODO: 
-// Receive player Id and check if corresponds to the pmId
-// Check if match has ended
+
 module.exports.attackCard = async function (pmId, deckId, opDeckId) {
     try {
         let res;
