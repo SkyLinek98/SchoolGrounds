@@ -6,6 +6,7 @@ create table card (
 					crd_cost INT not null,
 					crd_health INT,
 					crd_attack INT,
+					crd_cardtype_id INT not null,
 					primary key (crd_id)	
 );
 
@@ -55,6 +56,10 @@ create table deck (
             primary key(deck_id)
  );
 
+alter table card 
+add constraint crd_fk_cardtype
+foreign key (crd_cardtype_id) references cardtype(cardtype_id) 
+ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 alter table playermatch 
 add constraint pm_fk_player

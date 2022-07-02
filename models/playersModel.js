@@ -262,7 +262,7 @@ function TurnToEnergy(turn){
 // TODO: 
 // Receive player Id and check if corresponds to the pmId
 // Check if match has ended
-module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
+module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardType) {
     try {
         let res;
         // get player match info 
@@ -279,7 +279,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost) {
         let card = res.result;
 
         //if card is a buff
-        if (card.deck_card_id == 4 || card.deck_card_id == 7 || card.deck_card_id == 8){
+        if (cardType == 2){
             let sqlRandomTableCard = `select * from deck
                 where deck_pm_id = $1 and
                 (deck_pos_id = 2 or deck_pos_id = 3)

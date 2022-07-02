@@ -6,7 +6,7 @@ const IMGSIZEY = 115;
 
 class Card {
     static images = {};
-    constructor(id,card_id,name, cost, hp, attack, attacked, x, y) {
+    constructor(id,card_id,name, cost, hp, attack, attacked, x, y, type) {
         this.id=id;
         this.card_id = card_id;
         this.name = name;
@@ -18,6 +18,7 @@ class Card {
         this.enabled = true;
         this.attacked = attacked;
         this.selected = false;
+        this.type = type
     }
     draw() {
         if (this.selected) {
@@ -50,6 +51,7 @@ class Card {
     getId() { return this.id;}
     getCost() { return this.cost;}
     getName() { return this.name;}
+    getType() {return this.type;}
     
     hasAttacked() { return this.attacked; }
     setAttack(hasAttacked) { this.attacked = hasAttacked }

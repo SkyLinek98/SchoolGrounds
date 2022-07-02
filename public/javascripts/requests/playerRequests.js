@@ -19,9 +19,9 @@ async function requestAction(pId,pmId,data) {
     }
 }
 
-async function requestPlay(pId,pmId,deckId,cardCost) {
+async function requestPlay(pId,pmId,deckId,cardCost,cardType) {
     return await requestAction(pId,pmId, 
-        {deckId: deckId, cardCost: cardCost, action: "play"});
+        {deckId: deckId, cardCost: cardCost, cardType: cardType, action: "play"});
 }        
 
 async function requestDone(pId,pmId) {

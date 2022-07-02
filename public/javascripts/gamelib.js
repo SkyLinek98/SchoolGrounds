@@ -40,7 +40,7 @@ async function refresh() {
 
 async function play() {
     let card = returnSelected(hand);
-    await requestPlay(playerId,playerMatchId,card.getId(), card.getCost());
+    await requestPlay(playerId,playerMatchId,card.getId(), card.getCost(), card.getType());
     await loadScoreBoard();
     await loadCards();
     setCardsState();
