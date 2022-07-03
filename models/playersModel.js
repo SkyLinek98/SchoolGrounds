@@ -277,7 +277,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
         let card = res.result;
-
+console.log("----------------------------------------------------------" + cardType)
         //if card is a buff
         if (cardType == 2){
             let sqlRandomTableCard = `select * from deck
@@ -299,6 +299,24 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         // Discard card played
         let sqlDiscard = `delete from deck 
                             where deck_id = $1`;
+        await pool.query(sqlDiscard, [card.deck_id]);
+    }else if (cardType == 3){
+        // get opponent info
+        let matchId = player.pm_match_id;
+        res = await this.getOpponent(pmId,matchId);
+        if (res.status != 200) return res;
+        let opponent = res.result;
+        let opPmId = opponent.pm_id;
+        // Remove 1hp from all enemy units on board
+        let sqlOpponentTableCards = `update deck 
+                                        SET deck_card_hp = deck_card_hp - 1 
+                                        WHERE deck_pm_id = $1
+                                        AND (deck_pos_id = 2 OR deck_pos_id = 3`;
+        res = await pool.query(sqlOpponentTableCards, [opPmId]);
+
+        // Discard card played
+        let sqlDiscard = `delete from deck 
+                        where deck_id = $1`;
         await pool.query(sqlDiscard, [card.deck_id]);
     }else{
         // Play card to the table

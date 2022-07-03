@@ -1,3 +1,9 @@
+ create table cardtype (
+        	cardtype_id serial not null,
+        	cardtype_name VARCHAR(60) not null,
+            primary key(cardtype_id)
+ );
+
 create table card (
 					crd_id SERIAL not null,
 					crd_name VARCHAR(60) not null, 	
