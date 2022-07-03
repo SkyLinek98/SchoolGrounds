@@ -277,7 +277,6 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
         let card = res.result;
-console.log("----------------------------------------------------------" + cardType)
         //if card is a buff
         if (cardType == 2){
             let sqlRandomTableCard = `select * from deck
@@ -318,7 +317,7 @@ console.log("----------------------------------------------------------" + cardT
         let sqlDiscard = `delete from deck 
                         where deck_id = $1`;
         await pool.query(sqlDiscard, [card.deck_id]);
-    }else{
+    }else if (cardType == 1){
         // Play card to the table
         let sql = `update deck set deck_pos_id = 3 
                    where deck_id = $1 and deck_pm_id = $2 
