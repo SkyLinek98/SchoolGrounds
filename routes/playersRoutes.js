@@ -115,9 +115,8 @@ router.get('/:id', async function(req, res, next) {
 });
 
 
-router.get('/matches/:mId/playermatches/:pmId/opponent', async function(req, res, next) {
+router.get('/:pId/matches/:mId/playermatches/:pmId/opponent', async function(req, res, next) {
   console.log("Get player match opponent ");
-//  let pId = req.params.pId;
   let pmId = req.params.pmId;
   let mId = req.params.mId;
   let result = await pModel.getOpponent(pmId,mId);

@@ -69,10 +69,10 @@ async function requestPlayerMatchInfo(id) {
     }
 }
 
-async function requestOpponentInfo(pmId, matchId) {
+async function requestOpponentInfo(pId,pmId, matchId) {
     try {
         const response = await fetch(
-            `/api/players/matches/${matchId}/playermatches/${pmId}/opponent`);
+            `/api/players/${pId}/matches/${matchId}/playermatches/${pmId}/opponent`);
         var result = await response.json();
         // We are not checking for errors (considering id exists)
         return result;
