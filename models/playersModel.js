@@ -46,9 +46,12 @@ module.exports.getPlayerMatch = async function (pmId) {
 module.exports.getPlayerDeckCard = async function (pmId, deckId, ownerName) {
     if (!ownerName) ownerName = "player";
     try {
-        let sqlCheckDeck = `select * from deck 
+        let sqlCheckDeck = `select deck_id, deck_pm_id, deck_pos_id, deck_card_id, deck_card_hp, deck_card_atk,
+        crd_name, crd_cost, crd_cardtype_id
+        from deck, card
             where deck_id = $1
-            and deck_pm_id = $2`;
+            and deck_pm_id = $2
+            and deck_card_id = crd_id`;
         let resCheckDeck = await pool.query(sqlCheckDeck, [deckId, pmId]);
         if (resCheckDeck.rows.length == 0)
             return { status: 400, result: { msg: "Card not owned by the "+ownerName } };
@@ -296,7 +299,7 @@ function TurnToEnergy(turn){
 
 
 //vvvvvvvvvvvvvvvv----------------------------------------------------------------------------------------vvvvvvvvvvvvvvvvvvvvvvvvvvv
-module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardType) {
+module.exports.playCardFromHand = async function (pmId, deckId) {
     try {
         let res;
         // get player match info 
@@ -306,13 +309,14 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         if (player.pm_state_id != 1)
             return { status: 400, result: { msg: "You cannot play a new card at this moment" } };
         
-        //Check if enough energy
-        if(player.pm_energy >= cardCost){
+        //Get card info
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
         let card = res.result;
+         //Check if enough energy
+        if(player.pm_energy >= card.crd_cost){
         //if card is a buff
-        if (cardType == 2){
+        if (card.crd_cardtype_id == 2){
             res = await this.getPlayerRandomDeckCard(pmId)
             if (res.status != 200) return res;
             
@@ -322,7 +326,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
             let sqlDiscard = `delete from deck 
                             where deck_id = $1`;
             res = await pool.query(sqlDiscard, [card.deck_id]);
-        }else if (cardType == 3){
+        }else if (card.crd_cardtype_id == 3){
             // get opponent info
             let matchId = player.pm_match_id;
             res = await this.getOpponent(pmId,matchId);
@@ -340,7 +344,7 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
             let sqlDiscard = `delete from deck 
                         where deck_id = $1`;
             await pool.query(sqlDiscard, [card.deck_id]);
-        }else if (cardType == 1){
+        }else if (card.crd_cardtype_id == 1){
             // Play card to the table
             let sql = `update deck set deck_pos_id = 3 
                    where deck_id = $1 and deck_pm_id = $2 
@@ -352,11 +356,11 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         if (res.rowCount > 0) {
             let sqlEnergy = `update playermatch set pm_energy = pm_energy - $1
                    where pm_id = $2`;
-        await pool.query(sqlEnergy, [cardCost, pmId]);
+        await pool.query(sqlEnergy, [card.crd_cost, pmId]);
         console.log("player energy: "+player.pm_energy)
 
         //Change state if no more energy
-        if(player.pm_energy - cardCost < 1){
+        if(player.pm_energy - card.crd_cost < 1){
             let sqlState = `update playermatch set pm_state_id = 2 where pm_id = $1`;
             await pool.query(sqlState, [pmId]);
         }

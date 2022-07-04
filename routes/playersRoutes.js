@@ -25,9 +25,7 @@ router.post('/:pId/playermatches/:pmId/actions', async function(req, res, next) 
     res.status(result.status).send(result.result);  
   } else if (action == "play") {
     let dId = req.body.deckId;
-    let cost = req.body.cardCost
-    let cardType = req.body.cardType
-    let result = await pModel.playCardFromHand(pmId,dId,cost,cardType);
+    let result = await pModel.playCardFromHand(pmId,dId);
     res.status(result.status).send(result.result);
   } else  if (action == "attackPlayer") {
     let dId = req.body.deckId;
