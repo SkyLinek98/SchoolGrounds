@@ -59,6 +59,41 @@ module.exports.getPlayerDeckCard = async function (pmId, deckId, ownerName) {
     }
 }
 
+module.exports.getPlayerRandomDeckCard = async function (pmId) {
+    try {
+        let sqlCheckDeck = `select * from deck
+        where deck_pm_id = $1 and
+        (deck_pos_id = 2 or deck_pos_id = 3)
+        order by random()
+        limit 1`;
+        let resCheckDeck = await pool.query(sqlCheckDeck, [pmId]);
+        if (resCheckDeck.rows.length == 0)
+            return { status: 400, result: { msg: "No friendly units on the board"} };
+        return {status: 200, result: resCheckDeck.rows[0]};
+    } catch (err) {
+        console.log(err);
+        return { status: 500, result: err };
+    }
+}
+
+module.exports.applyPlayerBuffCard = async function (targetId, buffId) {
+    try {
+        let sql
+            if (buffId == 4){
+                sql = `update deck set deck_card_hp = deck_card_hp + 2 where deck_id = $1`;
+            }else if (buffId == 7){
+                sql = `update deck set deck_card_atk = deck_card_atk + 2 where deck_id = $1`;
+            }else if (buffId == 8){
+                sql = `update deck set deck_card_atk = deck_card_atk + 3, deck_card_hp = deck_card_hp + 3 where deck_id = $1`;
+            }
+        let res = await pool.query(sql, [targetId]);
+        return {status: 200, result: res.rows[0]};
+    } catch (err) {
+        console.log(err);
+        return { status: 500, result: err };
+    }
+}
+
 
 module.exports.getOpponent = async function (pmId, matchId) {
     try {
@@ -277,53 +312,43 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
         let card = res.result;
+        console.log("-------------------------------------------" + cardType)
         //if card is a buff
         if (cardType == 2){
-            let sqlRandomTableCard = `select * from deck
-                where deck_pm_id = $1 and
-                (deck_pos_id = 2 or deck_pos_id = 3)
-                order by random()
-                limit 1`;
-            res = await pool.query(sqlRandomTableCard, [pmId]);
-            let tableCardId = res.rows[0].deck_id
-            let sql
-            if (card.deck_card_id == 4){
-                sql = `update deck set deck_card_hp = deck_card_hp + 2 where deck_id = $1`;
-            }else if (card.deck_card_id == 7){
-                sql = `update deck set deck_card_atk = deck_card_atk + 2 where deck_id = $1`;
-            }else if (card.deck_card_id == 8){
-                sql = `update deck set deck_card_atk = deck_card_atk + 3, deck_card_hp = deck_card_hp + 3 where deck_id = $1`;
-            }
-        res = await pool.query(sql, [tableCardId]);
-        // Discard card played
-        let sqlDiscard = `delete from deck 
+            res = await this.getPlayerRandomDeckCard(pmId)
+            if (res.status != 200) return res;
+            let randomCard = res.result;
+            await this.applyPlayerBuffCard(randomCard.deck_id, card.deck_card_id)
+            // Discard card played
+            let sqlDiscard = `delete from deck 
                             where deck_id = $1`;
-        await pool.query(sqlDiscard, [card.deck_id]);
-    }else if (cardType == 3){
-        // get opponent info
-        let matchId = player.pm_match_id;
-        res = await this.getOpponent(pmId,matchId);
-        if (res.status != 200) return res;
-        let opponent = res.result;
-        let opPmId = opponent.pm_id;
-        // Remove 1hp from all enemy units on board
-        let sqlOpponentTableCards = `update deck 
-                                        SET deck_card_hp = deck_card_hp - 1 
-                                        WHERE deck_pm_id = $1
-                                        AND (deck_pos_id = 2 OR deck_pos_id = 3`;
-        res = await pool.query(sqlOpponentTableCards, [opPmId]);
-
-        // Discard card played
-        let sqlDiscard = `delete from deck 
+            res = await pool.query(sqlDiscard, [card.deck_id]);
+        }else if (cardType == 3){
+            // get opponent info
+            let matchId = player.pm_match_id;
+            res = await this.getOpponent(pmId,matchId);
+            if (res.status != 200) return res;
+            let opponent = res.result;
+            let opPmId = opponent.pm_id;
+            console.log("-------------------------------------------opPmId = " + opPmId)
+            // Remove 1hp from all enemy units on board
+            let sql = `update deck 
+                        SET deck_card_hp = deck_card_hp - 1 
+                        WHERE deck_pm_id = $1
+                        AND (deck_pos_id = 2 OR deck_pos_id = 3)`;
+            res = await pool.query(sql, [opPmId]);
+            // Discard card played
+            let sqlDiscard = `delete from deck 
                         where deck_id = $1`;
-        await pool.query(sqlDiscard, [card.deck_id]);
-    }else if (cardType == 1){
-        // Play card to the table
-        let sql = `update deck set deck_pos_id = 3 
+            await pool.query(sqlDiscard, [card.deck_id]);
+        }else if (cardType == 1){
+            // Play card to the table
+            let sql = `update deck set deck_pos_id = 3 
                    where deck_id = $1 and deck_pm_id = $2 
                    and deck_pos_id = 1 `;
-        res = await pool.query(sql, [deckId, pmId]);
-    }
+            res = await pool.query(sql, [deckId, pmId]);
+        }
+
         //Remove energy used
         if (res.rowCount > 0) {
             let sqlEnergy = `update playermatch set pm_energy = pm_energy - $1
@@ -413,8 +438,8 @@ module.exports.getPlayerDeck = async function (pId, pmId) {
         let resultCheck = await pool.query(sqlCheck, [pId, pmId]);
         if (resultCheck.rows.length > 0) { // I'm the owner of the deck
             let sql = `select deck_id, deck_pm_id, deck_pos_id, deck_card_id, deck_card_hp, deck_card_atk,
-            cp_name, crd_name, crd_cost, crd_description
-            from deck, cardpos, card 
+            cp_name, crd_name, crd_cost, crd_description, crd_cardtype_id
+            from deck, cardpos, card
             where deck_pm_id = $1 and
                 deck_pos_id = cp_id and
                 deck_card_id = crd_id`;
@@ -430,7 +455,7 @@ module.exports.getPlayerDeck = async function (pId, pmId) {
 
         if (resultCheckOp.rows.length > 0) {
             let sql = `select deck_id, deck_pm_id, deck_pos_id, deck_card_id, deck_card_hp, deck_card_atk,
-            cp_name, crd_name, crd_cost, crd_description
+            cp_name, crd_name, crd_cost, crd_description, crd_cardtype_id
             from deck, cardpos, card 
             where deck_pm_id = $1 and
                 deck_pos_id = cp_id and
@@ -515,7 +540,7 @@ module.exports.register = async function (username,password) {
                     result: {msg: "Username must have at least 4 characters"}}
         }else if (password.length < 8 || !containsNumber(password)) {
             return {status: 400, 
-                    result: {msg: "Password must have at least 8 characters and include a number"} };
+                    result: {msg: "Password must have at least 8 characters including a number"} };
         }else{
             let sql = `Select ply_name from player 
                         where ply_name = $1`;
@@ -540,7 +565,8 @@ function containsNumber(testString) {
 
 module.exports.getPlayersAndMatchesWaiting =  async function (pId) {
     try {
-        let sql = `select mt_id, pm_id, ply_name from playermatch,match, player
+        let sql = `select mt_id, pm_id, ply_name 
+                    from playermatch,match, player
                    where pm_match_id = mt_id and mt_finished = false and
                    ply_id = pm_player_id and
                    (select count(*) from playermatch where pm_match_id = mt_id) = 1`

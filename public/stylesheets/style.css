@@ -1,9 +1,10 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  padding: 15px;
+  font: 17px "Fantasy", Helvetica, sans-serif;
+  text-align: center;
 }
 
-a {
+#head {
   color: #00B7FF;
 }
 
@@ -18,4 +19,28 @@ a {
   color: white;
   margin: 5px;
   padding: 5px;
+}
+
+#schoolGroundsLogo img{
+  height: 300px;
+  margin: 0px;
+}
+
+#title{
+  background-color: #00B7FF;
+  margin: 0px;
+  padding: 10px;
+  line-height: 10px;
+}
+
+#main{
+  margin: 0px;
+  padding: 0px;
+  line-height: 10px;
+}
+
+p{
+  margin: 5px;
+  padding: 5px;
+  line-height: 4px;
 }

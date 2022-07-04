@@ -40,7 +40,8 @@ class Card {
         strokeWeight(1);
        // textAlign(CENTER, CENTER);
         //text(this.name, this.x + CWIDTH / 2, this.y + CHEIGHT *2/ 3);
-        if (this.name != "Sticker" && this.name != "Clipper" && this.name != "Charger"){
+       // if (this.name != "Sticker" && this.name != "Clipper" && this.name != "Charger"){
+        if (this.type == 1){
             textAlign(LEFT, CENTER);
             text("HP: " + this.hp, this.x +45, this.y + CHEIGHT +15);
             text("ATK: " + this.attack, this.x+5, this.y + CHEIGHT +15);

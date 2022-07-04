@@ -9,7 +9,7 @@ insert into card (crd_name, crd_description, crd_url, crd_cost, crd_health, crd_
 insert into card (crd_name, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('Pen','./images/Pen.png', 2, 3, 3, 1);
 insert into card (crd_name, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('MechanicalPencil','./images/MechanicalPencil.png', 2, 4, 2, 1);
 insert into card (crd_name, crd_description, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('Clipper','Gives +2atk to a random friendly unit on the board', './images/Clipper.png', 1, 1, 1, 2);
-insert into card (crd_name, crd_description, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('Charger','Gives +3atk and +3hp to a random friendly unit on the board', './images/Charger.png', 1, 2, 1, 2);
+insert into card (crd_name, crd_description, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('Charger','Gives +3atk and +3hp to a random friendly unit on the board', './images/Charger.png', 3, 1, 1, 2);
 insert into card (crd_name, crd_description, crd_url, crd_cost, crd_health, crd_attack, crd_cardtype_id) values('Thumtacks','Deals 1 damage to all enemy units on the board', './images/Thumbtacks.png', 1, 1, 1, 3);
 
 insert into player (ply_name,ply_passwd) values ('tester1','test1234');

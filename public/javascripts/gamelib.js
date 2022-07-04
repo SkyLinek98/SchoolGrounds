@@ -171,21 +171,21 @@ async function loadCards() {
     opponent = [];
     for (let card of myCards) {
         if (card.cp_name === "Hand") {
-            hand.push(new Card(card.deck_id, card.deck_card_id, card.crd_name, card.crd_cost, card.deck_card_hp, card.deck_card_atk, 
+            hand.push(new Card(card.deck_id, card.deck_card_id, card.crd_name, card.crd_cost, card.deck_card_hp, card.deck_card_atk,
                 false,
-                HANDX + CARDSPACE * handPos, HANDY));
+                HANDX + CARDSPACE * handPos, HANDY, card.crd_cardtype_id));
             handPos++;
         } else {
             table.push(new Card(card.deck_id,card.deck_card_id,card.crd_name, card.crd_cost, card.deck_card_hp, card.deck_card_atk,
                 card.cp_name === "TablePlayed",
-                TABLEX + CARDSPACE * tablePos, TABLEY));
+                TABLEX + CARDSPACE * tablePos, TABLEY, card.crd_cardtype_id));
             tablePos++;
         }
     }
     for (let card of opCards) {
         opponent.push(new Card(card.deck_id,card.deck_card_id,card.crd_name, card.crd_cost, card.deck_card_hp, card.deck_card_atk,
             card.cp_name === "TablePlayed",
-            OPX + CARDSPACE * opPos, OPY));
+            OPX + CARDSPACE * opPos, OPY, card.crd_cardtype_id));
         opPos++;
     }
 }

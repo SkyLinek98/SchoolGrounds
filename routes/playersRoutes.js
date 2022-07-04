@@ -46,7 +46,7 @@ router.get('/:pId/playermatches/:pmId/deck', async function(req, res, next) {
 });
 
 router.get('/playermatches/waiting', async function(req, res, next) {
-  console.log("Get player and matcdeckhes info that are waiting for others");
+  console.log("Get player and matchdecks info that are waiting for others");
   let result = await pModel.getPlayersAndMatchesWaiting();
   res.status(result.status).send(result.result);
 });
