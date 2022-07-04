@@ -294,9 +294,8 @@ function TurnToEnergy(turn){
     }
 }
 
-// TODO: 
-// Receive player Id and check if corresponds to the pmId
-// Check if match has ended
+
+//vvvvvvvvvvvvvvvv----------------------------------------------------------------------------------------vvvvvvvvvvvvvvvvvvvvvvvvvvv
 module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardType) {
     try {
         let res;
@@ -312,11 +311,11 @@ module.exports.playCardFromHand = async function (pmId, deckId, cardCost, cardTy
         res = await this.getPlayerDeckCard(pmId,deckId)
         if (res.status != 200) return res;
         let card = res.result;
-        console.log("-------------------------------------------" + cardType)
         //if card is a buff
         if (cardType == 2){
             res = await this.getPlayerRandomDeckCard(pmId)
             if (res.status != 200) return res;
+            
             let randomCard = res.result;
             await this.applyPlayerBuffCard(randomCard.deck_id, card.deck_card_id)
             // Discard card played
