@@ -41,13 +41,13 @@ class Card {
        // textAlign(CENTER, CENTER);
         //text(this.name, this.x + CWIDTH / 2, this.y + CHEIGHT *2/ 3);
        // if (this.name != "Sticker" && this.name != "Clipper" && this.name != "Charger"){
-        if (this.type == 1){
-            textAlign(LEFT, CENTER);
-            text("HP: " + this.hp, this.x +45, this.y + CHEIGHT +15);
-            text("ATK: " + this.attack, this.x+5, this.y + CHEIGHT +15);
-        }
         imageMode(CENTER)
         image(Card.images[this.card_id],this.x+CWIDTH/2, this.y+ CHEIGHT/2,IMGSIZEX,IMGSIZEY);
+        if (this.type == 1){
+            textAlign(LEFT, CENTER);
+            text(this.hp, this.x +60, this.y + CHEIGHT -20);
+            text(this.attack, this.x+12, this.y + CHEIGHT -20);
+        }
     }
     getId() { return this.id;}
     getCost() { return this.cost;}
