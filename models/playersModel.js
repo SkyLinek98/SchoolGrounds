@@ -172,7 +172,17 @@ module.exports.attackPlayer = async function (pmId, deckId) {
         let sqlUpHp = `update playermatch set pm_hp = pm_hp - $1
                         where pm_id = $2`
         await pool.query(sqlUpHp, [cardAttack,opPmId]);
-        return {status:200, result: {msg: "Successfully removed "+cardAttack+" HP from the opponent's life"}}
+        
+        
+        //Test for dead opponent
+        if (opponent.pm_hp - cardAttack <= 0) {     
+            let sqlEnd = `Update match set mt_finished = true
+                        Where mt_id = $1`;
+            await pool.query(sqlEnd, [matchId]);
+            return { status: 200, result: { msg: "Game Ended" } };
+        }else{
+            return {status:200, result: {msg: "Successfully removed "+cardAttack+" HP from the opponent's life"}}
+        }
     } catch (err) {
         console.log(err);
         return { status: 500, result: err };
