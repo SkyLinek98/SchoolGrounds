@@ -1,3 +1,0 @@
-DATABASE_URL=postgres://uvfdhmuoijhyve:218a2d07a31af294a7f0768defb41a485c1dceb3a77850517b22a10d0c023394@ec2-52-48-159-67.eu-west-1.compute.amazonaws.com:5432/dek6tulcsgqduh
-
-DATABASE_URL=postgres://postgres:20210344@localhost:5432/rps1
